@@ -1,93 +1,76 @@
 <div align="center">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://imagedelivery.net/3TbraffuDZ4aEf8KWOmI_w/a45d1fa2-0ae8-4a39-4409-f4f934bfae00/public">
-  <source media="(prefers-color-scheme: light)" srcset="https://imagedelivery.net/3TbraffuDZ4aEf8KWOmI_w/3f5ad4c1-c4c8-4277-b622-290e7f37bd00/public">
-  <img alt="Trigger.dev logo" src="https://imagedelivery.net/3TbraffuDZ4aEf8KWOmI_w/a45d1fa2-0ae8-4a39-4409-f4f934bfae00/public">
-</picture>
-  
-### Open source background jobs and AI infrastructure
+<h1>My Project</h1>
 
-[Discord](https://trigger.dev/discord) | [Website](https://trigger.dev) | [Issues](https://github.com/triggerdotdev/trigger.dev/issues) | [Docs](https://trigger.dev/docs)
-
-[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/triggerdotdev.svg?style=social&label=Follow%20%40trigger.dev)](https://twitter.com/triggerdotdev)
+### Background job processing platform
 
 </div>
 
-## About Trigger.dev
+## About This Project
 
-Trigger.dev is an open source platform and SDK which allows you to create long-running background jobs. Write normal async code, deploy, and never hit a timeout.
+This project is a customized job processing system based on the Trigger.dev platform. It allows you to create and manage long-running background jobs in your applications.
 
 ### Key features:
 
 - JavaScript and TypeScript SDK
-- No timeouts
-- Retries (with exponential backoff)
+- No timeouts for background jobs
+- Automatic retries with exponential backoff
 - Queues and concurrency controls
-- Schedules and crons
-- Full Observability; logs, live trace views, advanced filtering
-- React hooks to interact with the Trigger API from your React app
-- Pipe LLM streams straight to your users through the Realtime API
-- Trigger tasks and display the run status and metadata anywhere in your app
-- Custom alerts, get notified by email, Slack or webhooks
-- No infrastructure to manage
-- Elastic (scaling)
-- Works with your existing tech stack
+- Scheduled jobs and cron support
+- Full observability with logs and trace views
+- React integration for frontend applications
+- Realtime API for streaming data
+- Job status and metadata tracking
+- Customizable alerts
+- Elastic scaling
+- Compatible with modern tech stacks
 
-## In your codebase
+## Usage
 
-Create tasks where they belong: in your codebase. Version control, localhost, test and review like you're already used to.
+Create background tasks directly in your codebase for better organization and version control.
 
 ```ts
 import { task } from "@trigger.dev/sdk/v3";
 
-//1. You need to export each task
-export const helloWorld = task({
-  //2. Use a unique id for each task
-  id: "hello-world",
-  //3. The run function is the main function of the task
-  run: async (payload: { message: string }) => {
-    //4. You can write code that runs for a long time here, there are no timeouts
-    console.log(payload.message);
+// Define and export your task
+export const processData = task({
+  // Use a unique ID for each task
+  id: "process-data",
+  // The main task function
+  run: async (payload: { data: any }) => {
+    // Long-running code goes here - no timeouts
+    const result = await processLargeDataset(payload.data);
+    return result;
   },
 });
 ```
 
-## Deployment
+## Environment Support
 
-Use our SDK to write tasks in your codebase. There's no infrastructure to manage, your tasks automatically scale and connect to our cloud. Or you can always self-host.
+The system supports multiple environments:
+- `Development` - for local testing
+- `Staging` - for pre-production verification
+- `Production` - for live workloads
 
-## Environments
+## Job Monitoring
 
-We support `Development`, `Staging`, and `Production` environments, allowing you to test your tasks before deploying them to production.
+Monitor all your jobs with detailed logs and trace views to help with debugging and performance analysis.
 
-## Full visibility of every job run
+## Getting Started
 
-View every task in every run so you can tell exactly what happened. We provide a full trace view of every task run so you can see what happened at every step.
+To set up this project:
 
-![Trace view image](https://imagedelivery.net/3TbraffuDZ4aEf8KWOmI_w/7c1b347f-004c-4482-38a7-3f6fa9c00d00/public)
-
-# Getting started
-
-The quickest way to get started is to create an account and project in our [web app](https://cloud.trigger.dev), and follow the instructions in the onboarding. Build and deploy your first task in minutes.
-
-### Useful links:
-
-- [Quick start](https://trigger.dev/docs/quick-start) - get up and running in minutes
-- [How it works](https://trigger.dev/docs/v3/how-it-works) - understand how Trigger.dev works under the hood
-- [Guides and examples](https://trigger.dev/docs/guides/introduction) - walk-through guides and code examples for popular frameworks and use cases
-
-## Self-hosting
-
-If you prefer to self-host Trigger.dev, you can follow our [self-hosting guide](https://trigger.dev/docs/v3/open-source-self-hosting#overview).
-
-We also have a dedicated self-hosting channel in our [Discord server](https://trigger.dev/discord) for support.
+1. Clone the repository
+2. Install dependencies with `pnpm install`
+3. Configure environment variables
+4. Start the development server with `pnpm dev`
 
 ## Development
 
-To setup and develop locally or contribute to the open source project, follow our [development guide](./CONTRIBUTING.md).
+Review the project structure:
+- `/apps` - Application services
+- `/packages` - Shared libraries and SDK
+- `/docker` - Docker configurations for deployment
 
-## Meet the Amazing People Behind This Project:
+## License
 
-<a href="https://github.com/triggerdotdev/trigger.dev/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=triggerdotdev/trigger.dev" />
-</a>
+This project is available under the MIT License.
