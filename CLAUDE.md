@@ -1,4 +1,6 @@
-# Claude Coding Guidelines for Trigger.dev
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Build/Lint/Test Commands
 ```bash
@@ -21,3 +23,7 @@ cd apps/webapp && pnpm run test # Run tests from specific directory
 - **Structure**: Follow monorepo pattern with apps/, packages/, internal-packages/
 - **Trigger Tasks**: Always use `@trigger.dev/sdk/v3`, export all tasks
 - **Database**: Use Prisma client from `@trigger.dev/database` for PostgreSQL
+
+## Known Issues
+- Deployment indexing may fail with "Failed to fetch environment variables: Connection error" when attempting to run the indexer via `node /app/Users/shyou/AppData/Local/npm-cache/_npx/f51a09bd0abf5f10/node_modules/trigger.dev/dist/esm/entryPoints/deploy-index-controller.mjs`
+- Docker builds may show warnings about sensitive data in ARG or ENV instructions for TRIGGER_SECRET_KEY

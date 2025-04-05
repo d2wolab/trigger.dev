@@ -2,29 +2,19 @@ version: "3"
 
 volumes:
   database-data:
-  database-data-alt:
-  pgadmin-data:
   redis-data:
-  redis-cluster_data-0:
-  redis-cluster_data-1:
-  redis-cluster_data-2:
-  redis-cluster_data-3:
-  redis-cluster_data-4:
-  redis-cluster_data-5:
 
 networks:
   app_network:
     external: false
 
 services:
-  database:
-    container_name: database
-    build:
-      context: .
-      dockerfile: Dockerfile.postgres
+  db:
+    container_name: devdb
+    image: postgres:14
     restart: always
     volumes:
-      - ${DB_VOLUME:-database-data}:/var/lib/postgresql/data/
+      - database-data:/var/lib/postgresql/data/
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -33,13 +23,6 @@ services:
       - app_network
     ports:
       - 5432:5432
-    command:
-      - -c
-      - listen_addresses=*
-      - -c
-      - wal_level=logical
-      - -c
-      - shared_preload_libraries=pg_partman_bgw
 
   redis:
     container_name: redis
@@ -52,114 +35,9 @@ services:
     ports:
       - 6379:6379
 
-  # redis-node-0:
-  #   image: docker.io/bitnami/redis-cluster:7.0
-  #   container_name: redis-node-0
-  #   networks:
-  #     - app_network
-  #   ports:
-  #     - "6378:6379"
-  #   volumes:
-  #     - redis-cluster_data-0:/bitnami/redis/data
-  #   environment:
-  #     - "REDIS_PASSWORD=bitnami"
-  #     - "REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5"
-
-  # redis-node-1:
-  #   image: docker.io/bitnami/redis-cluster:7.0
-  #   container_name: redis-node-1
-  #   networks:
-  #     - app_network
-  #   ports:
-  #     - "6380:6379"
-  #   volumes:
-  #     - redis-cluster_data-1:/bitnami/redis/data
-  #   environment:
-  #     - "REDIS_PASSWORD=bitnami"
-  #     - "REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5"
-
-  # redis-node-2:
-  #   image: docker.io/bitnami/redis-cluster:7.0
-  #   container_name: redis-node-2
-  #   networks:
-  #     - app_network
-  #   ports:
-  #     - "6381:6379"
-  #   volumes:
-  #     - redis-cluster_data-2:/bitnami/redis/data
-  #   environment:
-  #     - "REDIS_PASSWORD=bitnami"
-  #     - "REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5"
-
-  # redis-node-3:
-  #   image: docker.io/bitnami/redis-cluster:7.0
-  #   container_name: redis-node-3
-  #   networks:
-  #     - app_network
-  #   ports:
-  #     - "6382:6379"
-  #   volumes:
-  #     - redis-cluster_data-3:/bitnami/redis/data
-  #   environment:
-  #     - "REDIS_PASSWORD=bitnami"
-  #     - "REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5"
-
-  # redis-node-4:
-  #   image: docker.io/bitnami/redis-cluster:7.0
-  #   container_name: redis-node-4
-  #   networks:
-  #     - app_network
-  #   ports:
-  #     - "6383:6379"
-  #   volumes:
-  #     - redis-cluster_data-4:/bitnami/redis/data
-  #   environment:
-  #     - "REDIS_PASSWORD=bitnami"
-  #     - "REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5"
-
-  # redis-node-5:
-  #   image: docker.io/bitnami/redis-cluster:7.0
-  #   container_name: redis-node-5
-  #   networks:
-  #     - app_network
-  #   ports:
-  #     - "6384:6379"
-  #   volumes:
-  #     - redis-cluster_data-5:/bitnami/redis/data
-  #   depends_on:
-  #     - redis-node-0
-  #     - redis-node-1
-  #     - redis-node-2
-  #     - redis-node-3
-  #     - redis-node-4
-  #   environment:
-  #     - "REDIS_PASSWORD=bitnami"
-  #     - "REDISCLI_AUTH=bitnami"
-  #     - "REDIS_CLUSTER_REPLICAS=1"
-  #     - "REDIS_NODES=redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5"
-  #     - "REDIS_CLUSTER_CREATOR=yes"
-
-  electric:
-    image: electricsql/electric:1.0.0-beta.15@sha256:4ae0f895753b82684aa31ea1c708e9e86d0a9bca355acb7270dcb24062520810
-    restart: always
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@database:5432/postgres?sslmode=disable
-    networks:
-      - app_network
+  redisinsight:
+    image: redislabs/redisinsight:latest
     ports:
-      - "3060:3000"
-    depends_on:
-      - database
-
-  # otel-collector:
-  #   container_name: otel-collector
-  #   image: otel/opentelemetry-collector-contrib:latest
-  #   restart: always
-  #   command: ["--config", "/etc/otel-collector-config.yaml"]
-  #   volumes:
-  #     - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
-  #   ports:
-  #     - "55680:55680"
-  #     - "55681:55681"
-  #     - "4317:4317" # OTLP gRPC receiver
-  #     - "4318:4318" # OTLP http receiver
+      - "8001:8001"
+    volumes:
+      - redis-data:/redisinsight

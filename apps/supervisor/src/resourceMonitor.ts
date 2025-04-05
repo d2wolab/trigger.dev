@@ -3,7 +3,6 @@ import type * as TDocker from "docker-api-ts";
 import type { MachineResources } from "@trigger.dev/core/v3";
 import { SimpleStructuredLogger } from "@trigger.dev/core/v3/utils/structuredLogger";
 import { env } from "./env.js";
-import type { K8sApi } from "./clients/kubernetes.js";
 
 const logger = new SimpleStructuredLogger("resource-monitor");
 
@@ -151,62 +150,6 @@ export class DockerResourceMonitor extends ResourceMonitor {
   }
 }
 
-export class KubernetesResourceMonitor extends ResourceMonitor {
-  private k8s: K8sApi;
-  private nodeName: string;
-
-  constructor(k8s: K8sApi, nodeName: string) {
-    super(KubernetesResourceParser);
-    this.k8s = k8s;
-    this.nodeName = nodeName;
-  }
-
-  async getNodeResources(fromCache?: boolean): Promise<NodeResources> {
-    if (this.isCacheValid() || fromCache) {
-      logger.debug("[ResourceMonitor] Using cached resources");
-      return this.cachedResources;
-    }
-
-    const node = await this.k8s.core.readNode({ name: this.nodeName });
-    const pods = await this.k8s.core.listPodForAllNamespaces({
-      // TODO: ensure this includes all pods that consume resources
-      fieldSelector: `spec.nodeName=${this.nodeName},status.phase=Running`,
-    });
-
-    const allocatable = node.status?.allocatable;
-    const cpuTotal = this.resourceParser.cpu(allocatable?.cpu ?? "0");
-    const memoryTotal = this.resourceParser.memory(allocatable?.memory ?? "0");
-
-    // Sum up resources requested by all pods on this node
-    let cpuRequested = 0;
-    let memoryRequested = 0;
-
-    for (const pod of pods.items) {
-      if (pod.status?.phase === "Running") {
-        if (!pod.spec) {
-          continue;
-        }
-
-        for (const container of pod.spec.containers) {
-          const resources = container.resources?.requests ?? {};
-          cpuRequested += this.resourceParser.cpu(resources.cpu ?? "0");
-          memoryRequested += this.resourceParser.memory(resources.memory ?? "0");
-        }
-      }
-    }
-
-    this.cachedResources = this.applyOverrides({
-      cpuTotal,
-      cpuAvailable: cpuTotal - cpuRequested,
-      memoryTotal,
-      memoryAvailable: memoryTotal - memoryRequested,
-    });
-
-    this.lastUpdateMs = Date.now();
-
-    return this.cachedResources;
-  }
-}
 
 abstract class ResourceParser {
   abstract cpu(cpu: number | string): number;
@@ -223,24 +166,3 @@ class DockerResourceParser extends ResourceParser {
   }
 }
 
-class KubernetesResourceParser extends ResourceParser {
-  cpu(cpu: string): number {
-    if (cpu.endsWith("m")) {
-      return parseInt(cpu.slice(0, -1)) / 1000;
-    }
-    return parseInt(cpu);
-  }
-
-  memory(memory: string): number {
-    if (memory.endsWith("Ki")) {
-      return parseInt(memory.slice(0, -2)) * 1024;
-    }
-    if (memory.endsWith("Mi")) {
-      return parseInt(memory.slice(0, -2)) * 1024 * 1024;
-    }
-    if (memory.endsWith("Gi")) {
-      return parseInt(memory.slice(0, -2)) * 1024 * 1024 * 1024;
-    }
-    return parseInt(memory);
-  }
-}
