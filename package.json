@@ -8,13 +8,11 @@
   "version": "0.0.1",
   "scripts": {
     "build": "turbo run build",
-    "build:force": "turbo run build --force",
-    "build:db:seed": "turbo run build:db:seed",
     "db:migrate": "turbo run db:migrate:deploy generate",
     "db:seed": "turbo run db:seed",
     "db:studio": "turbo run db:studio",
-    "db:populate": "turbo run db:populate",
     "dev": "turbo run dev",
+    "app": "pnpm run dev --filter webapp",
     "format": "prettier . --write --config prettier.config.js",
     "generate": "turbo run generate",
     "lint": "turbo run lint",
@@ -23,11 +21,8 @@
     "docker:logs": "docker-compose -p triggerdotdev -f docker/docker-compose.yml logs -f",
     "test": "turbo run test --concurrency=1 -- --run",
     "start": "turbo run start",
-    "clean": "turbo run clean",
-    "clean:node_modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
     "typecheck": "turbo run typecheck",
-    "setup": "turbo run generate db:migrate:force db:seed",
-    "clean:sourcemaps": "turbo run clean:sourcemaps"
+    "setup": "turbo run generate db:migrate db:seed"
   },
   "devDependencies": {
     "@manypkg/cli": "^0.19.2",

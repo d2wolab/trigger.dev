@@ -12,6 +12,16 @@ pnpm run test ./path/to/file.test.ts --run # Run a specific test file
 cd apps/webapp && pnpm run test # Run tests from specific directory
 ```
 
+## Running the Application
+```bash
+pnpm run docker               # Start infrastructure services (PostgreSQL, Redis)
+pnpm run app                  # Start webapp in development mode
+# or 
+pnpm run web                  # Alternative for starting webapp
+# or
+pnpm run dev:web              # Another alternative for starting webapp
+```
+
 ## Code Style Guidelines
 - **TypeScript**: Use strict mode. Types > interfaces. No enums. No default exports.
 - **Imports**: Prefer isomorphic code over Node.js specific code

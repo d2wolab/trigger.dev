@@ -3,7 +3,6 @@ version: "3"
 volumes:
   database-data:
   redis-data:
-  redisinsight-data:
 
 networks:
   app_network:
@@ -24,6 +23,29 @@ services:
       - app_network
     ports:
       - 5432:5432
+  app:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - 3030:3000
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ../.env
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres?schema=public
+      DIRECT_URL: postgres://postgres:postgres@db:5432/postgres?schema=public
+      SESSION_SECRET: abcdef1234
+      MAGIC_LINK_SECRET: abcdef1234
+      ENCRYPTION_KEY: ae13021afef0819c3a307ad487071c06
+      REMIX_APP_PORT: 3000
+      PORT: 3000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    networks:
+      - app_network
 
   redis:
     container_name: redis
@@ -36,11 +58,13 @@ services:
     ports:
       - 6379:6379
 
-  redis-insight:
+  redisinsight:
     image: redislabs/redisinsight:latest
     container_name: redis_insight
     restart: always
     ports:
-      - 8001:8001
+      - "8001:8001"
     volumes:
-      - redisinsight-data:/db
+      - redis-data:/redisinsight
+    networks:
+      - app_network
